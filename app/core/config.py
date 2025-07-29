@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     # Basic settings
     app_name: str = "Thingsss Scraping API"
     debug: bool = os.getenv("DEBUG", "false").lower() == "true"
+    port: int = int(os.getenv("PORT", "8080"))
     
     # Browser settings
     browser_timeout: int = 30000  # 30 seconds

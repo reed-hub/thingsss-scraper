@@ -2,6 +2,7 @@
 Thingsss Scraping API Service
 Independent web scraping service for complex sites with bot detection.
 """
+import os
 import time
 import uvicorn
 from fastapi import FastAPI, Request
@@ -72,10 +73,12 @@ async def log_requests(request: Request, call_next):
     return response
 
 if __name__ == "__main__":
+    # Get port from environment (Railway sets this)
+    port = int(os.environ.get("PORT", 8080))
     uvicorn.run(
         "main:app",
         host="0.0.0.0",
-        port=8080,
-        reload=True,
+        port=port,
+        reload=False,  # Disable reload in production
         log_level="info"
     ) 
