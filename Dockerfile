@@ -12,9 +12,7 @@ RUN playwright install --with-deps chromium firefox webkit
 # Copy application code
 COPY . .
 
-# Create non-root user for security
-RUN useradd -m -u 1000 scraper && chown -R scraper:scraper /app
-USER scraper
+# Railway runs containers securely, no need for custom user
 
 # Expose port (Railway will set PORT env var)
 EXPOSE 8080
