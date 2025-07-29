@@ -17,5 +17,5 @@ COPY . .
 # Expose port (Railway will set PORT env var)
 EXPOSE 8080
 
-# Start server (Railway will override with $PORT)
-CMD ["python3", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8080"] 
+# Start server - main.py handles PORT env var properly
+CMD ["python3", "main.py"] 
