@@ -1,9 +1,93 @@
+# ==============================================================================
+# Railway Configuration for Thingsss Scraping API Service
+# ==============================================================================
+#
+# This configuration file tells Railway how to build and deploy the scraping 
+# service. Railway automatically detects this file and applies the settings.
+#
+# Documentation: https://docs.railway.app/deploy/config-as-code
+# ==============================================================================
+
 [build]
+# Use Dockerfile for building the application
+# Railway will automatically detect and use the Dockerfile in the project root
 builder = "dockerfile"
 
 [deploy]
+# Health check configuration
+# Railway will monitor this endpoint to ensure the service is running properly
 healthcheckPath = "/health"
+
+# Health check timeout (5 minutes)
+# Longer timeout needed because Playwright browser installation takes time
 healthcheckTimeout = 300
 
+# Note: startCommand is intentionally omitted
+# The Dockerfile CMD handles starting the application with proper PORT handling
+# Previous versions had issues with $PORT environment variable interpolation
+
 [experimental]
-incrementalBuildPaths = ["./"] 
+# Enable incremental builds for faster deployments
+# This caches unchanged Docker layers between builds
+incrementalBuildPaths = ["./"]
+
+# ==============================================================================
+# Environment Variables (Set in Railway Dashboard):
+# 
+# Required:
+#   DEBUG=false                    # Disable debug logging in production
+#   BROWSER_HEADLESS=true         # Required for Railway (no display)
+#   MAX_CONCURRENT_REQUESTS=3     # Limit for Railway resource constraints
+#
+# Optional:
+#   BROWSER_TIMEOUT=30000         # Browser operation timeout (ms)
+#   REQUEST_DELAY_MS=1000         # Delay between requests (ms)
+#   ALLOWED_DOMAINS=cb2.com,...   # Comma-separated domain whitelist
+#   MAIN_API_URL=https://...      # Main Thingsss API URL (for integration)
+#
+# Automatic (Set by Railway):
+#   PORT=8080                     # Server port (handled by main.py)
+#   RAILWAY_ENVIRONMENT=production
+#   RAILWAY_PROJECT_ID=...
+#   RAILWAY_SERVICE_ID=...
+# ==============================================================================
+
+# ==============================================================================
+# Deployment Process:
+#
+# 1. Push to GitHub repository
+# 2. Railway detects changes via webhook
+# 3. Railway runs: docker build using Dockerfile
+# 4. Railway installs Playwright browsers (~10-15 minutes first time)
+# 5. Railway deploys container with environment variables
+# 6. Railway maps container port to public HTTPS URL
+# 7. Health check verifies service is running
+#
+# Monitoring:
+# - Check logs: railway logs
+# - Check health: curl https://your-app.railway.app/health
+# - Monitor metrics in Railway dashboard
+# ==============================================================================
+
+# ==============================================================================
+# Troubleshooting Common Issues:
+#
+# 1. Build Timeout:
+#    - Increase healthcheckTimeout if needed
+#    - Check for Playwright installation errors in build logs
+#
+# 2. Health Check Failures:
+#    - Verify /health endpoint returns {"status": "healthy"}
+#    - Check that main.py is handling PORT environment variable
+#    - Ensure browsers can start in headless mode
+#
+# 3. Memory Issues:
+#    - Reduce MAX_CONCURRENT_REQUESTS
+#    - Monitor memory usage in Railway dashboard
+#    - Consider upgrading Railway plan if needed
+#
+# 4. Slow Response Times:
+#    - Check BROWSER_TIMEOUT setting
+#    - Monitor performance in application logs
+#    - Consider optimizing extraction rules for specific sites
+# ============================================================================== 
